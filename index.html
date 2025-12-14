@@ -3,20 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wordle English Mobile</title>
-<link rel="stylesheet" href="style.css">
+<title>Mobile English Game</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body {
+        margin:0;
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #FFDEE9, #B5FFFC);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+    }
+
+    .game-container {
+        background: rgba(255,255,255,0.95);
+        padding:20px;
+        border-radius:25px;
+        box-shadow:0 15px 30px rgba(0,0,0,0.2);
+        text-align:center;
+        width:95%;
+        max-width:400px;
+        position:relative;
+        overflow:hidden;
+    }
+
+    h1{margin-bottom:10px;color:#333;font-size:22px;}
+    .level{font-size:18px;margin-bottom:5px;opacity:1;transition:opacity 0.5s;}
+    .word{font-size:26px;margin-bottom:20px;font-weight:bold;color:#555;animation:pulse 1s infinite;}
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);color:#ff6f91;}}
+    
+    .options button {
+        display:block;
+        width:100%;
+        margin:10px 0;
+        padding:16px;
+        font-size:20px;
+        border:none;
+        border-radius:15px;
+        cursor:pointer;
+        transition: transform 0.1s, background-color 0.3s;
+        font-weight:bold;
+    }
+
+    .options button:active { transform:scale(0.95); }
+    
+    .score, .timer { margin-top:10px;font-size:18px;color:#555;font-weight:bold; }
+    .progress-container{background:#ddd;border-radius:10px;margin:10px 0;height:15px;width:100%;}
+    .progress-bar{height:100%;width:0%;background:#4CAF50;border-radius:10px;transition:width 0.3s;}
+    .correct{background-color:#4CAF50 !important;color:#fff;}
+    .wrong{background-color:#f44336 !important;color:#fff;}
+    .bonus{position:absolute;top:-10px;right:-10px;background: gold;color:#333;padding:5px 10px;border-radius:50%;font-weight:bold;animation:pop 0.5s ease forwards;}
+    @keyframes pop{0%{transform:scale(0);opacity:0;}50%{transform:scale(1.5);opacity:1;}100%{transform:scale(1);opacity:1;}}
+    .confetti{position:absolute;width:12px;height:12px;background:red;animation:fall 1s linear forwards;z-index:10;border-radius:50%;}
+    @keyframes fall{0%{transform:translateY(0) rotate(0deg);}100%{transform:translateY(300px) rotate(360deg);opacity:0;}}
+</style>
 </head>
 <body>
-<h1>Wordle English 🌍</h1>
-<p id="hint"></p>
+<div class="game-container">
+    <h1>СӨЗДІ ТАП</h1>
+    <div class="level">Level: Easy</div>
+    <div class="word">Loading...</div>
+    <div class="options"></div>
+    <div class="score">Score: 0</div>
+    <div class="timer">Time: 10</div>
+    <div class="progress-container"><div class="progress-bar"></div></div>
+</div>
 
-<div id="board"></div>
+<audio id="correctSound" src="https://freesound.org/data/previews/109/109662_945474-lq.mp3"></audio>
+<audio id="wrongSound" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
+<audio id="levelUpSound" src="https://freesound.org/data/previews/256/256113_3263906-lq.mp3"></audio>
 
-<div id="keyboard"></div>
+<script>
+// --- Уровни и слова (как раньше, easy, medium, hard) ---
+const easyWords=[{english:"Apple",options:["Яблоко","Апельсин","Банан","Виноград"],answer:"Яблоко"},{english:"Dog",options:["Кошка","Собака","Птица","Лошадь"],answer:"Собака"},{english:"Sun",options:["Луна","Звезда","Солнце","Облако"],answer:"Солнце"},{english:"Book",options:["Ручка","Стол","Книга","Тетрадь"],answer:"Книга"},{english:"Water",options:["Огонь","Вода","Воздух","Земля"],answer:"Вода"},{english:"Cat",options:["Кошка","Собака","Птица","Рыба"],answer:"Кошка"},{english:"Car",options:["Машина","Велосипед","Самолёт","Поезд"],answer:"Машина"},{english:"Chair",options:["Стол","Стул","Кровать","Диван"],answer:"Стул"},{english:"Milk",options:["Молоко","Сок","Вода","Чай"],answer:"Молоко"},{english:"Bread",options:["Хлеб","Молоко","Сыр","Яйцо"],answer:"Хлеб"},{english:"Tree",options:["Дерево","Камень","Цветок","Трава"],answer:"Дерево"},{english:"House",options:["Дом","Квартира","Школа","Магазин"],answer:"Дом"},{english:"Rain",options:["Снег","Дождь","Солнце","Ветер"],answer:"Дождь"},{english:"Fish",options:["Птица","Рыба","Собака","Кошка"],answer:"Рыба"},{english:"Flower",options:["Цветок","Трава","Дерево","Куст"],answer:"Цветок"},{english:"Bird",options:["Собака","Кошка","Птица","Рыба"],answer:"Птица"},{english:"Clock",options:["Часы","Календарь","Телефон","Компьютер"],answer:"Часы"},{english:"Window",options:["Дверь","Окно","Стена","Пол"],answer:"Окно"},{english:"School",options:["Школа","Дом","Магазин","Больница"],answer:"Школа"},{english:"Door",options:["Дверь","Окно","Стена","Пол"],answer:"Дверь"}];
+const mediumWords=[{english:"Bridge",options:["Мост","Река","Дорога","Дом"],answer:"Мост"},{english:"Mountain",options:["Гора","Долина","Река","Лес"],answer:"Гора"},{english:"River",options:["Озеро","Река","Море","Водопад"],answer:"Река"},{english:"Ocean",options:["Океан","Море","Река","Лагуна"],answer:"Океан"},{english:"Sky",options:["Небо","Земля","Облако","Ветер"],answer:"Небо"},{english:"Cloud",options:["Облако","Дождь","Снег","Солнце"],answer:"Облако"},{english:"Raincoat",options:["Пальто","Плащ","Шорты","Шляпа"],answer:"Плащ"},{english:"Computer",options:["Компьютер","Телефон","Телевизор","Планшет"],answer:"Компьютер"},{english:"Phone",options:["Телефон","Часы","Ноутбук","Планшет"],answer:"Телефон"},{english:"Pen",options:["Ручка","Карандаш","Маркер","Тетрадь"],answer:"Ручка"},{english:"Paper",options:["Бумага","Книга","Стол","Ручка"],answer:"Бумага"},{english:"Music",options:["Музыка","Кино","Книга","Игра"],answer:"Музыка"},{english:"Dance",options:["Танец","Пение","Игра","Спорт"],answer:"Танец"},{english:"Friend",options:["Друг","Враг","Сосед","Учитель"],answer:"Друг"},{english:"Family",options:["Семья","Друзья","Соседи","Коллеги"],answer:"Семья"},{english:"Food",options:["Еда","Напиток","Игрушка","Книга"],answer:"Еда"},{english:"Cheese",options:["Сыр","Хлеб","Молоко","Мясо"],answer:"Сыр"},{english:"Egg",options:["Яйцо","Хлеб","Молоко","Сыр"],answer:"Яйцо"},{english:"Forest",options:["Лес","Парк","Деревня","Река"],answer:"Лес"},{english:"Desert",options:["Пустыня","Лес","Озеро","Река"],answer:"Пустыня"}];
+const hardWords=[{english:"Island",options:["Остров","Гора","Долина","Лес"],answer:"Остров"},{english:"Train",options:["Поезд","Самолёт","Автобус","Корабль"],answer:"Поезд"},{english:"Airplane",options:["Самолёт","Поезд","Автобус","Корабль"],answer:"Самолёт"},{english:"Boat",options:["Лодка","Машина","Поезд","Самолёт"],answer:"Лодка"},{english:"Hospital",options:["Больница","Школа","Дом","Магазин"],answer:"Больница"},{english:"Teacher",options:["Учитель","Ученик","Доктор","Врач"],answer:"Учитель"},{english:"Student",options:["Ученик","Учитель","Доктор","Врач"],answer:"Ученик"},{english:"Street",options:["Улица","Дом","Магазин","Дорога"],answer:"Улица"},{english:"Carpet",options:["Ковёр","Стол","Кровать","Стул"],answer:"Ковёр"},{english:"Library",options:["Библиотека","Школа","Дом","Магазин"],answer:"Библиотека"},{english:"Museum",options:["Музей","Парк","Театр","Школа"],answer:"Музей"},{english:"Philosophy",options:["Философия","История","Математика","Биология"],answer:"Философия"},{english:"Psychology",options:["Психология","Физика","Химия","Астрономия"],answer:"Психология"},{english:"Economy",options:["Экономика","Политика","История","Математика"],answer:"Экономика"},{english:"Government",options:["Правительство","Банк","Школа","Дом"],answer:"Правительство"},{english:"Constitution",options:["Конституция","Договор","Закон","Правило"],answer:"Конституция"},{english:"Justice",options:["Справедливость","Закат","День","Ночь"],answer:"Справедливость"},{english:"Freedom",options:["Свобода","Рабство","Дом","Школа"],answer:"Свобода"},{english:"Responsibility",options:["Ответственность","Радость","Смелость","Страх"],answer:"Ответственность"},{english:"Innovation",options:["Инновация","Стартап","Банк","Закон"],answer:"Инновация"}];
 
-<p id="message"></p>
-<p id="translation"></p>
+const levels=[{name:"Easy",words:easyWords},{name:"Medium",words:mediumWords},{name:"Hard",words:hardWords}];
+let currentLevel=0, score=0, currentIndex=0, time=10, timerInterval;
 
-<script src="game.js"></script>
+function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];} }
+levels.forEach(l=>shuffle(l.words));
+
+function getRandomColor(){const colors=['#FF6F91','#FFC75F','#F9F871','#7BE495','#6A5ACD']; return colors[Math.floor(Math.random()*colors.length)];}
+
+function showWord(){
+    if(currentIndex>=levels[currentLevel].words.length){levelUp();return;}
+    const wordObj=levels[currentLevel].words[currentIndex];
+    document.querySelector(".word").textContent=wordObj.english;
+    const optionsDiv=document.querySelector(".options");
+    optionsDiv.innerHTML="";
+    wordObj.options.forEach(opt=>{
+        const btn=document.createElement("button");
+        btn.textContent=opt;
+        btn.style.background=getRandomColor();
+        btn.onclick=()=>checkAnswer(opt);
+        optionsDiv.appendChild(btn);
+    });
+    time=10; document.querySelector(".timer").textContent="Time: "+time;
+    updateProgress();
+    clearInterval(timerInterval);
+    timerInterval=setInterval(()=>{
+        time--; document.querySelector(".timer").textContent="Time: "+time;
+        if(time<=0){clearInterval(timerInterval); showNextWord();}
+    },1000);
+}
+
+function checkAnswer(selected){
+    const wordObj=levels[currentLevel].words[currentIndex];
+    const buttons=document.querySelectorAll(".options button");
+    if(selected===wordObj.answer){
+        score++; document.querySelector("#correctSound").play(); showBonus();
+        buttons.forEach(b=>{if(b.textContent===selected)b.classList.add("correct")});
+    }else{
+        document.querySelector("#wrongSound").play();
+        buttons.forEach(b=>{if(b.textContent===selected)b.classList.add("wrong");if(b.textContent===wordObj.answer)b.classList.add("correct");});
+    }
+    document.querySelector(".score").textContent="Score: "+score;
+    clearInterval(timerInterval); setTimeout(showNextWord,800);
+}
+
+function showNextWord(){currentIndex++; showWord();}
+function showBonus(){const bonus=document.createElement("div"); bonus.classList.add("bonus"); bonus.textContent="+1"; document.querySelector(".game-container").appendChild(bonus); setTimeout(()=>bonus.remove(),500);}
+function levelUp(){
+    document.querySelector("#levelUpSound").play(); showConfetti();
+    currentLevel++; if(currentLevel>=levels.length){document.querySelector(".word").textContent="Game Over!";document.querySelector(".options").innerHTML="";clearInterval(timerInterval);return;}
+    currentIndex=0; const levelElem=document.querySelector(".level"); levelElem.style.opacity=0;
+    setTimeout(()=>{levelElem.textContent="Level: "+levels[currentLevel].name; levelElem.style.opacity=1; showWord();},500);
+}
+function showConfetti(){for(let i=0;i<30;i++){const c=document.createElement("div");c.classList.add("confetti");c.style.background=getRandomColor();c.style.left=Math.random()*350+"px";document.querySelector(".game-container").appendChild(c);setTimeout(()=>c.remove(),1000);}}
+function updateProgress(){const level=levels[currentLevel];const percent=(currentIndex/level.words.length)*100;document.querySelector(".progress-bar").style.width=percent+"%";}
+
+document.querySelector(".level").textContent="Level: "+levels[currentLevel].name;
+showWord();
+</script>
 </body>
 </html>
