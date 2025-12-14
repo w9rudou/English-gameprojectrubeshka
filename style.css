@@ -1,48 +1,21 @@
-body {
-    text-align: center;
-    background: #222;
-    margin: 0;
-    padding: 0;
-    user-select: none;
+.cell {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: #333;
+  transition: transform 0.2s, background 0.3s;
 }
 
-canvas {
-    background: #87ceeb;
-    display: block;
-    margin: 0 auto;
+.cell.flip {
+  transform: rotateX(360deg);
 }
 
-/* Вопросы */
-#quiz {
-    display: none;
-    color: #fff;
-    margin-top: 10px;
-}
-
-/* Стандартные кнопки */
-button {
-    margin: 5px;
-    padding: 15px 25px;
-    font-size: 24px;
-    border-radius: 10px;
-    border: none;
-    background-color: rgba(68,68,68,0.8); /* полупрозрачный фон */
-    color: white;
-    cursor: pointer;
-    user-select: none;
-}
-
-/* Кнопки управления */
-#controls {
-    position: fixed;
-    bottom: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-}
-
-/* Эффект нажатия */
-#controls button:active {
-    background-color: rgba(102,102,102,0.8); /* темнеет при нажатии */
-}
+.correct { background: green; }
+.present { background: orange; }
+.absent { background: #555; }
