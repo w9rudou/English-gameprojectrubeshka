@@ -1,17 +1,22 @@
-<canvas id="g" width="500" height="300"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordle English Mobile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Wordle English 🌍</h1>
+<p id="hint"></p>
 
-<div id="quiz">
-  <p id="q"></p>
-  <button onclick="ans(0)"></button>
-  <button onclick="ans(1)"></button>
-  <button onclick="ans(2)"></button>
-</div>
+<div id="board"></div>
 
-<div id="controls">
-  <button id="left">⬅️</button>
-  <button id="jump">⬆️</button>
-  <button id="right">➡️</button>
-</div>
+<div id="keyboard"></div>
+
+<p id="message"></p>
+<p id="translation"></p>
 
 <script src="game.js"></script>
-<link rel="stylesheet" href="style.css">
+</body>
+</html>
