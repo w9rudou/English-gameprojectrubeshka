@@ -1,5 +1,48 @@
-body{text-align:center;background:#222;margin:0;padding:0;user-select:none}
-canvas{background:#87ceeb;display:block;margin:0 auto}
-#quiz{display:none;color:#fff;margin-top:10px}
-button{margin:5px;padding:10px;font-size:16px}
-#controls{position:fixed;bottom:10px;width:100%;display:flex;justify-content:center;gap:20px}
+body {
+    text-align: center;
+    background: #222;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+canvas {
+    background: #87ceeb;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Вопросы */
+#quiz {
+    display: none;
+    color: #fff;
+    margin-top: 10px;
+}
+
+/* Стандартные кнопки */
+button {
+    margin: 5px;
+    padding: 15px 25px;
+    font-size: 24px;
+    border-radius: 10px;
+    border: none;
+    background-color: rgba(68,68,68,0.8); /* полупрозрачный фон */
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Кнопки управления */
+#controls {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+/* Эффект нажатия */
+#controls button:active {
+    background-color: rgba(102,102,102,0.8); /* темнеет при нажатии */
+}
